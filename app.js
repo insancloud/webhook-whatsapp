@@ -29,12 +29,20 @@ app.post("/webhook", (req, res) => {
       let from = req.body.entry[0].changes[0].value.messages[0].from;
       let msg_body = req.body.entry[0].changes[0].value.messages[0].text.body;
 
+      // Extract contact information
+      let contactName = req.body.entry[0].changes[0].value.contacts[0].profile.name;
+      let contactWhatsAppID = req.body.entry[0].changes[0].value.contacts[0].wa_id;
+
+      // Create acknowledgment message with contact information
+      let ackMessage = `Ack: ${msg_body}\nContact Name: ${contactName}\nContact WhatsApp ID: ${contactWhatsAppID}`;
+
+      // Send acknowledgment message back to the sender
       axios.post(
         `https://graph.facebook.com/v12.0/${phone_number_id}/messages?access_token=${process.env.WHATSAPP_TOKEN}`,
         {
           messaging_product: "whatsapp",
           to: from,
-          text: { body: "Ack: " + msg_body },
+          text: { body: ackMessage },
         },
         { headers: { "Content-Type": "application/json" } }
       );
